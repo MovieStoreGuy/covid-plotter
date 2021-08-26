@@ -8,7 +8,7 @@ from influxdb_client.domain.write_precision import WritePrecision
 
 class InfluxDB():
 
-    def __init__(self, token: str, org: str, default_bucket: str, url: str = "http://localhost:8086"):
+    def __init__(self, token: str, org: str, default_bucket: str, url: str = "http://localhost:8086") -> None:
         self._api = influxdb_client.InfluxDBClient(
             url=url,
             org=org,
@@ -17,14 +17,13 @@ class InfluxDB():
         self._defaultBucket = default_bucket
         self._defaultOrg = org
 
-    def export(self, points: typing.Generator[list[Point], None, None]) -> None:
+    def export(self, points:list[Point]) -> None:
         writer = self._api.write_api(write_options=SYNCHRONOUS)
-        for pts in points():
-            writer.write(
-                self._defaultBucket,
-                self._defaultOrg,
-                [to_influxdb_point(p) for p in pts],
-            )
+        writer.write(
+            self._defaultBucket,
+            self._defaultOrg,
+            [to_influxdb_point(p) for p in points],
+        )
         writer.close()
 
 

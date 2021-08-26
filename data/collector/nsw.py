@@ -18,7 +18,7 @@ class NSW(State):
     NSW_DATA_BASE = "https://data.nsw.gov.au"
     NSW_DATA_SEARCH = "data/api/3/action/datastore_search"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
 
     def _collectCKANData(self, resource_id: str, limit: int = 100, offset: int = 0,
@@ -82,8 +82,8 @@ class NSW(State):
 
 
 class NSWPoint(Point):
-    def __init__(self, dataset: str, name: str, data: dict[str:str]):
-        stamp = data.pop('notification_date') or data.pop('test_date')
+    def __init__(self, dataset: str, name: str, data: dict[str:str]) -> None:
+        stamp = data.pop('notification_date', None) or data.pop('test_date', None)
         if stamp is None:
             raise ValueError('missing known date field')
         self._timestamp = parse(stamp)

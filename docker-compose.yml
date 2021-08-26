@@ -15,6 +15,7 @@ services:
     - DOCKER_INFLUXDB_INIT_PASSWORD=password
     - DOCKER_INFLUXDB_INIT_ORG=covid-19
     - DOCKER_INFLUXDB_INIT_BUCKET=covid-data
+    - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=5iOiu00R7ntYQTE0_egua_LBIzaoJvxYUP62doDjQ4Z1UNmUUlvNjxMa9nBwcP13rhsALBn0clJ9hp_gVKBSYA==
     networks:
     - internal
   grafana:
