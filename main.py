@@ -1,26 +1,36 @@
-#!/usr/bin/env python3
-from urllib.parse import urljoin
-import requests
+#!/usr/bin/env -S python3 -dOt
 
-NSW_DATA_PORTAL_BASE = "https://data.nsw.gov.au"
-NSW_DATA_PORTAL_PATH = "data/api/3/action/datastore_search?resource_id=21304414-1ff1-4243-a5d2-f52778048b29"
+import logging
+import typing
+from concurrent.futures import ThreadPoolExecutor
 
-r = requests.get(urljoin(NSW_DATA_PORTAL_BASE, NSW_DATA_PORTAL_PATH), params={
-  "limit"   : 100,
-  "offset"  : 0,
-})
-
-data = r.json().get('result', {})
-
-records = data.get('records',[])
+from data.exporter import InfluxDB
+from data.collector import NSW
 
 
-while len(records) < int(data.get('total')):
-  next = data.get('_links',{}).get('next',{})
-  u = urljoin(NSW_DATA_PORTAL_BASE, f'/data{next}')
-  r = requests.get(u)
-  data = r.json().get('result', {})
-  records.extend(data.get('records',[]))
+def combine_job(export: typing.Callable, collect: typing.Callable, *args) -> None:
+    logging.info(f'''Running collection job for {collect.__name__}''')
+    export(collect(args))
+    logging.info(f'''Finished collection job for {collect.__name__}''')
 
-records.sort(key=lambda v: v.get('notification_date'))
 
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG, encoding='UTF-8')
+
+    exporter = InfluxDB(
+        '5iOiu00R7ntYQTE0_egua_LBIzaoJvxYUP62doDjQ4Z1UNmUUlvNjxMa9nBwcP13rhsALBn0clJ9hp_gVKBSYA==',
+        'covid-19',
+        'covid-data',
+    )
+
+    state = NSW()
+
+    logging.info('Begining to collect state data')
+    # with ThreadPoolExecutor(max_workers=4) as pool:
+    #     for fn in [state.getCasesByAge, state.getCasesByLGA, state.getTestsByLGA, state.getCasesByLikelySource]:
+    #         logging.info('Collecting new data set')
+    #         pool.submit(combine_job, exporter.export, fn, 100_000_000)
+    for pts in state.getCasesByAge():
+        print(pts)
+
+    logging.info('finished reading all data')
