@@ -1,8 +1,6 @@
 ---
 apiVersion: 1
 
-#{"id":1,"uid":"QQiviZV7k","orgId":1,"name":"InfluxDB","type":"influxdb","typeLogoUrl":"","access":"proxy","url":"http://influxdb:8086","password":"","user":"","database":"","basicAuth":true,"basicAuthUser":"admin","basicAuthPassword":"","withCredentials":false,"isDefault":true,"jsonData":{"defaultBucket":"covid-data","httpMode":"POST","organization":"covid-19","timeout":120,"version":"Flux"},"secureJsonFields":{"basicAuthPassword":true,"password":true,"token":true},"version":3,"readOnly":false}
-
 datasources:
   - name: influxdb-Flux
     type: influxdb
