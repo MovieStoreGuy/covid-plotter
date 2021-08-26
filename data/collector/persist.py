@@ -25,11 +25,14 @@ class Persist(State):
                 for line in f:
                     offset = int(line.split()[0])
         except (OSError, IOError) as e:
-            self._logger.warn(f'Unable to open state file due to {e}')
+            self._logger.debug(f'Unable to open state file due to {e}')
 
+        self._logger.info(f'Starting to read data {method.__name__}:{offset}')
         with open(os.path.join(self._store, statefile), "w") as s:
             for pts in method(limit, offset, query):
                 yield pts
+                s.seek(0)
+                s.truncate(0)
                 s.write(f'{offset}\n')
                 s.flush()
                 offset += limit

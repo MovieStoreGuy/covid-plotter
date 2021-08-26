@@ -23,6 +23,15 @@ services:
     container_name: grafana
     ports:
     - 3000:3000
+    volumes:
+    - ./config/grafana.yml:/etc/grafana/provisioning/datasources/influxdb-flux.yml:ro
+    environment:
+    - INFLUXDB_URL=http://influxdb:8086
+    - INFLUXDB_USER=admin
+    - INFLUXDB_PASSWORD=password
+    - INFLUXDB_DEFAULT_BUCKET=covid-data
+    - INFLUXDB_ORG=covid-19
+    - INFLUXDB_TOKEN=5iOiu00R7ntYQTE0_egua_LBIzaoJvxYUP62doDjQ4Z1UNmUUlvNjxMa9nBwcP13rhsALBn0clJ9hp_gVKBSYA==
     networks:
     - internal
     depends_on:
