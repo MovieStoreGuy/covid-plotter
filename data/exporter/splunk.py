@@ -9,13 +9,18 @@ HEC_ENDPOINT = "/services/collector/event"
 
 class Splunk():
 
-    def __init__(self, authtoken: str, domain:str = "http://localhost:8088") -> None:
+    def __init__(self, authtoken: str, domain: str = "http://localhost:8088") -> None:
+        self._domain = domain
         self._url = urljoin(domain, HEC_ENDPOINT)
         self._headers = {
             'Content-Type': 'application/json',
             'Authorization': f'Splunk {authtoken}',
         }
         self._logger = logging.getLogger(__name__)
+
+    def check(self) -> None:
+        r = requests.get(urljoin(self._domain, '/services/collector/health'))
+        assert r.status_code == 200 and 'healthy' in r.json().get('text', '')
 
     def export(self, points: list[Point]) -> None:
         with requests.Session() as s:

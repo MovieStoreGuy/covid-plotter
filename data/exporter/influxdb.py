@@ -8,7 +8,8 @@ from influxdb_client.domain.write_precision import WritePrecision
 
 class InfluxDB():
 
-    def __init__(self, token: str, org: str, default_bucket: str, url: str = "http://localhost:8086", drop_keys:typing.Iterable = None) -> None:
+    def __init__(self, token: str, org: str, default_bucket: str,
+                 url: str = "http://localhost:8086", drop_keys: typing.Iterable = None) -> None:
         self._api = influxdb_client.InfluxDBClient(
             url=url,
             org=org,
@@ -17,6 +18,9 @@ class InfluxDB():
         self._defaultBucket = default_bucket
         self._defaultOrg = org
         self._drop_keys = drop_keys
+
+    def check(self) -> None:
+        assert not self._api.health().status() == 'fail'
 
     def export(self, points: list[Point]) -> None:
         writer = self._api.write_api(write_options=SYNCHRONOUS)

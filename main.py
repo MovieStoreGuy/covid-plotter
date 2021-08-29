@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 import typing
 from concurrent.futures import ThreadPoolExecutor
 
@@ -34,6 +35,18 @@ if __name__ == '__main__':
     )
 
     splunk = Splunk(SPLUNK_HEC_TOKEN, domain=SPLUNK_URL)
+
+    
+    for check in [influx.check, splunk.check]:
+        ready:bool = False
+        while not ready:
+            try:
+                check()
+                ready = True
+            except Exception as e:
+                logging.info(f'Healthcheck has failed due to {e}')
+                time.sleep(1)
+
 
     state = Persist(NSW())
 

@@ -59,25 +59,25 @@ class NSW(State):
                       query: str = None) -> typing.Generator[list[Point], None, None]:
         ''' Fetches time stamped data on impacted LGAs with known cases '''
         for data in self._collectCKANData('21304414-1ff1-4243-a5d2-f52778048b29', limit, offset, query):
-            pts = list(map(lambda p: NSWPoint('lga-venue-data', 'covid.exposure-venues', p), data))
+            pts = list(map(lambda p: NSWPoint('lga-venue-data', 'covid.nsw.exposure-venues', p), data))
             yield pts
 
     def getCasesByLikelySource(self, limit: int = 100, offset: int = 0,
                                query: str = None) -> typing.Generator[list[Point], None, None]:
         for data in self._collectCKANData('2776dbb8-f807-4fb2-b1ed-184a6fc2c8aa', limit, offset, query):
-            pts = list(map(lambda p: NSWPoint('case-data', 'covid.by-location', p), data))
+            pts = list(map(lambda p: NSWPoint('case-data', 'covid.nsw.by-location', p), data))
             yield pts
 
     def getTestsByLGA(self, limit: int = 100, offset: int = 0,
                       query: str = None) -> typing.Generator[list[Point], None, None]:
         for data in self._collectCKANData('945c6204-272a-4cad-8e33-dde791f5059a', limit, offset, query):
-            pts = list(map(lambda p: NSWPoint('testing-data', 'covid.tests', p), data))
+            pts = list(map(lambda p: NSWPoint('testing-data', 'covid.nsw.tests', p), data))
             yield pts
 
     def getCasesByAge(self, limit: int = 100, offset: int = 0,
                       query: str = None) -> typing.Generator[list[Point], None, None]:
         for data in self._collectCKANData('24b34cb5-8b01-4008-9d93-d14cf5518aec', limit, offset, query):
-            pts = list(map(lambda x: NSWPoint('cases-by-age', 'covid.by-age', x), data))
+            pts = list(map(lambda x: NSWPoint('cases-by-age', 'covid.nsw.by-age', x), data))
             yield pts
 
 
