@@ -1,7 +1,27 @@
 ---
-version: '3'
+version: '3.4'
 
 services:
+  data-collector:
+    container_name: data-collector
+    depends_on:
+    - influxdb
+    - splunk
+    build:
+      context: .
+    volumes:
+    - ./:/src/covid-plotter/src
+    - cache:/src/covid-plotter/cache
+    environment:
+    - SPLUNK_HEC_URL=http://splunk:8088
+    - SPLUNK_HEC_TOKEN=b2a52e5d-7c09-43a9-84e0-ca6faa5c48d2
+    - INFLUXDB_URL=http://influxdb:8086
+    - INFLUXDB_TOKEN=5iOiu00R7ntYQTE0_egua_LBIzaoJvxYUP62doDjQ4Z1UNmUUlvNjxMa9nBwcP13rhsALBn0clJ9hp_gVKBSYA==
+    networks:
+    - internal
+    command:
+    - "-dOt"
+    - "./src/main.py"
   influxdb:
     image: influxdb:2.0.8-alpine
     container_name: influxdb
@@ -25,6 +45,7 @@ services:
     - 3000:3000
     volumes:
     - ./config/grafana.yml:/etc/grafana/provisioning/datasources/influxdb-flux.yml:ro
+    - splunk:/opt/splunk/var
     environment:
     - INFLUXDB_URL=http://influxdb:8086
     - INFLUXDB_USER=admin
@@ -36,10 +57,30 @@ services:
     - internal
     depends_on:
     - influxdb
+  splunk:
+    image: splunk/splunk:8.2.2
+    container_name: splunk
+    ports:
+    - 9000:8000 # Splunk UI
+    networks: 
+    - internal
+    volumes:
+    - ./config/splunk.yml:/tmp/defaults/default.yml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-u", "admin:covid-19", "-f", "http://localhost:8000"]
+      interval: 1m
+      timeout: 1s
+      retries: 3
+      start_period: 1m
+    environment:
+    - "SPLUNK_START_ARGS=--accept-license"
+    - "SPLUNK_PASSWORD=covid-19"
 
 
 volumes:
   influxdb: {}
+  cache: {}
+  splunk: {}
 
 networks:
   internal: {}

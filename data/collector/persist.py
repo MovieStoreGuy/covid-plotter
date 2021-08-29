@@ -18,7 +18,7 @@ class Persist(State):
 
     def _persistState(self, method: typing.Callable, limit: int = 100, offset: int = 0,
                       query: str = None) -> typing.Generator[list[Point], None, None]:
-        statefile = method.__name__ + f'-{limit}-' + hashlib.md5(repr(query).encode('utf-8')).hexdigest()
+        statefile = type(self._wrap).__name__+ '-' + method.__name__  + hashlib.md5(repr(query).encode('utf-8')).hexdigest()
         # Need to figure out restarting from last known state
         try:
             with open(os.path.join(self._store, statefile), "r") as f:
@@ -35,8 +35,10 @@ class Persist(State):
                 s.truncate(0)
                 s.write(f'{offset}\n')
                 s.flush()
-                offset += limit
-                
+                offset += len(pts)
+            s.seek(0)
+            s.truncate(0)
+            s.write(f'{offset}\n')
 
     def getCasesByAge(self, limit: int, offset: int, query: str) -> typing.Generator[list[Point], None, None]:
         return self._persistState(self._wrap.getCasesByAge, limit, offset, query)

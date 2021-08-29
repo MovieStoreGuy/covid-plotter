@@ -8,7 +8,7 @@ from influxdb_client.domain.write_precision import WritePrecision
 
 class InfluxDB():
 
-    def __init__(self, token: str, org: str, default_bucket: str, url: str = "http://localhost:8086") -> None:
+    def __init__(self, token: str, org: str, default_bucket: str, url: str = "http://localhost:8086", drop_keys:typing.Iterable = None) -> None:
         self._api = influxdb_client.InfluxDBClient(
             url=url,
             org=org,
@@ -16,23 +16,24 @@ class InfluxDB():
         )
         self._defaultBucket = default_bucket
         self._defaultOrg = org
+        self._drop_keys = drop_keys
 
-    def export(self, points:list[Point]) -> None:
+    def export(self, points: list[Point]) -> None:
         writer = self._api.write_api(write_options=SYNCHRONOUS)
         writer.write(
             self._defaultBucket,
             self._defaultOrg,
-            [to_influxdb_point(p) for p in points],
+            [to_influxdb_point(p, self._drop_keys) for p in points],
         )
         writer.close()
 
 
-def to_influxdb_point(pt: Point) -> influxdb_client.Point:
+def to_influxdb_point(pt: Point, drop_keys: typing.Iterable) -> influxdb_client.Point:
     p = influxdb_client.Point(pt.dataset())\
         .time(pt.timestamp(), WritePrecision.NS)\
         .field(pt.name(), pt.value())
 
-    for k, v in pt.tags().items():
+    for k, v in {k: v for k, v in pt.tags().items() if not k in drop_keys}.items():
         p.tag(k, v)
 
     return p

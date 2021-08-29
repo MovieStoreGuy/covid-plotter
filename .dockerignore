@@ -1,0 +1,9 @@
+# folders that are not required
+/.git/
+/.vscode/
+/.mypy_cache/
+/config/*
+
+# Dedicated files that are not needed
+/docker-compose.yml
+*__pycache__

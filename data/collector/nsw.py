@@ -49,7 +49,7 @@ class NSW(State):
             yield records
             next = data.get('_links', {}).get('next', "")
             u = urljoin(self.NSW_DATA_BASE, f'/data{next}')
-            self._logger.debug(f'Attempting to read data: {u}')
+            self._logger.info(f'Attempting to read data: {u}')
             r = session.get(u)
             r.raise_for_status()
             data = r.json().get('result', {})
